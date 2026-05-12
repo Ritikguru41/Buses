@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MUMBAI BUS VMS — Smart Fleet Control</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Exo+2:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ═══════════ SIDEBAR ═══════════ -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon"><i class="fas fa-bus-alt"></i></div>
+    <div class="logo-text">
+      <span class="logo-title">MUMBAI VMS</span>
+      <span class="logo-sub">Fleet Control System</span>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-group-label">MAIN</div>
+    <a href="#" class="nav-item active" data-section="dashboard">
+      <i class="fas fa-tachometer-alt"></i><span>Dashboard</span>
+      <div class="nav-indicator"></div>
+    </a>
+    <a href="#" class="nav-item" data-section="fleet">
+      <i class="fas fa-bus"></i><span>Fleet Table</span>
+    </a>
+    <a href="#" class="nav-item" data-section="ev">
+      <i class="fas fa-bolt"></i><span>EV Battery</span>
+      <span class="nav-badge">Live</span>
+    </a>
+
+    <div class="nav-group-label">AI INSIGHTS</div>
+    <a href="#" class="nav-item" data-section="maintenance">
+      <i class="fas fa-tools"></i><span>Maintenance AI</span>
+    </a>
+    <a href="#" class="nav-item" data-section="analytics">
+      <i class="fas fa-chart-line"></i><span>Analytics</span>
+    </a>
+    <a href="#" class="nav-item" data-section="contracts">
+      <i class="fas fa-file-contract"></i><span>Contracts</span>
+    </a>
+    <a href="#" class="nav-item" data-section="alerts">
+      <i class="fas fa-bell"></i><span>Alerts</span>
+      <span class="nav-badge critical" id="alertBadge">0</span>
+    </a>
+    <a href="#" class="nav-item" data-section="assistant">
+      <i class="fas fa-robot"></i><span>AI Assistant</span>
+    </a>
+
+    <div class="nav-group-label">SYSTEM</div>
+    <a href="#" class="nav-item" data-section="settings">
+      <i class="fas fa-cog"></i><span>Settings</span>
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="system-status">
+      <div class="status-dot online"></div>
+      <span>System Online</span>
+    </div>
+    <div class="sidebar-version">v3.2.1 — BEST</div>
+  </div>
+</aside>
+
+<!-- ═══════════ MAIN CONTENT ═══════════ -->
+<main class="main-content">
+
+  <!-- TOP NAVBAR -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <button class="sidebar-toggle" id="sidebarToggle">
+        <i class="fas fa-bars"></i>
+      </button>
+      <div class="page-breadcrumb">
+        <span class="breadcrumb-root"><i class="fas fa-city"></i> Mumbai BEST</span>
+        <span class="breadcrumb-sep">›</span>
+        <span class="breadcrumb-current" id="breadcrumbCurrent">Dashboard</span>
+      </div>
+    </div>
+    <div class="topbar-center">
+      <div class="live-clock" id="liveClock">00:00:00</div>
+      <div class="live-date" id="liveDate">--</div>
+    </div>
+    <div class="topbar-right">
+      <button class="topbar-btn" id="themeToggle" title="Toggle Theme">
+        <i class="fas fa-moon" id="themeIcon"></i>
+      </button>
+      <button class="topbar-btn" id="refreshBtn" title="Refresh Data">
+        <i class="fas fa-sync-alt"></i>
+      </button>
+      <div class="notif-btn-wrap">
+        <button class="topbar-btn notif-btn" id="notifBtn">
+          <i class="fas fa-bell"></i>
+          <span class="notif-count" id="notifCount">0</span>
+        </button>
+      </div>
+      <div class="user-pill">
+        <div class="user-avatar">AD</div>
+        <div class="user-info">
+          <span class="user-name">Admin</span>
+          <span class="user-role">Control Room</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ════════ SECTIONS ════════ -->
+  <div class="sections-wrapper">
+
+    <!-- ── DASHBOARD SECTION ── -->
+    <section class="section active" id="section-dashboard">
+      <div class="section-header">
+        <h2 class="section-title"><i class="fas fa-tachometer-alt"></i> Fleet Overview</h2>
+        <div class="section-meta">
+          <span class="live-pill"><span class="pulse-dot"></span> LIVE</span>
+          <span id="lastUpdated">Updated just now</span>
+        </div>
+      </div>
+
+      <!-- STAT CARDS -->
+      <div class="cards-grid" id="statsGrid"></div>
+
+      <!-- AI EFFICIENCY + CHARTS -->
+      <div class="two-col-grid">
+        <div class="glass-card ai-efficiency-card">
+          <div class="card-head">
+            <h3><i class="fas fa-brain"></i> AI Fleet Efficiency Score</h3>
+            <span class="ai-tag">AI Computed</span>
+          </div>
+          <div class="efficiency-ring-wrap">
+            <canvas id="efficiencyRing" width="180" height="180"></canvas>
+            <div class="efficiency-label">
+              <span id="efficiencyScore">--</span>
+              <small>/ 100</small>
+            </div>
+          </div>
+          <div class="efficiency-breakdown" id="effBreakdown"></div>
+        </div>
+        <div class="glass-card">
+          <div class="card-head">
+            <h3><i class="fas fa-chart-pie"></i> Fleet Status Distribution</h3>
+          </div>
+          <canvas id="fleetPieChart" height="220"></canvas>
+        </div>
+      </div>
+
+      <!-- MAINTENANCE TREND + DEPOT PERF -->
+      <div class="two-col-grid">
+        <div class="glass-card">
+          <div class="card-head">
+            <h3><i class="fas fa-chart-line"></i> Maintenance Trend (6 Months)</h3>
+          </div>
+          <canvas id="maintTrendChart" height="220"></canvas>
+        </div>
+        <div class="glass-card">
+          <div class="card-head">
+            <h3><i class="fas fa-warehouse"></i> Depot Performance</h3>
+          </div>
+          <canvas id="depotPerfChart" height="220"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── FLEET TABLE SECTION ── -->
+    <section class="section" id="section-fleet">
+      <div class="section-header">
+        <h2 class="section-title"><i class="fas fa-bus"></i> Fleet Management Table</h2>
+      </div>
+      <div class="glass-card table-card">
+        <div class="table-toolbar">
+          <div class="search-wrap">
+            <i class="fas fa-search"></i>
+            <input type="text" id="fleetSearch" placeholder="Search bus, depot, driver…" />
+          </div>
+          <div class="filter-wrap">
+            <select id="filterStatus"><option value="">All Status</option><option>Active</option><option>Maintenance</option><option>Charging</option><option>Idle</option><option>Breakdown</option></select>
+            <select id="filterType"><option value="">All Types</option><option>EV</option><option>Diesel</option><option>CNG</option></select>
+            <select id="filterDepot"><option value="">All Depots</option></select>
+          </div>
+          <button class="btn-export" id="exportCsvBtn"><i class="fas fa-download"></i> Export CSV</button>
+        </div>
+        <div class="table-wrap">
+          <table id="fleetTable">
+            <thead>
+              <tr>
+                <th data-col="busNo">Bus No <i class="fas fa-sort"></i></th>
+                <th data-col="depot">Depot <i class="fas fa-sort"></i></th>
+                <th data-col="type">Type</th>
+                <th data-col="status">Status</th>
+                <th data-col="battery">Battery %</th>
+                <th data-col="driver">Driver</th>
+                <th data-col="maintDue">Maint. Due</th>
+                <th data-col="insurance">Insurance</th>
+                <th data-col="fitness">Fitness Cert</th>
+                <th data-col="contract">Contract Exp.</th>
+                <th data-col="lastService">Last Service</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="fleetTableBody"></tbody>
+          </table>
+        </div>
+        <div class="table-footer">
+          <span id="tableCount">Showing 0 buses</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── EV BATTERY SECTION ── -->
+    <section class="section" id="section-ev">
+      <div class="section-header">
+        <h2 class="section-title"><i class="fas fa-bolt"></i> EV Battery Monitoring</h2>
+        <div class="section-meta">
+          <span class="live-pill"><span class="pulse-dot"></span> LIVE CHARGING SIM</span>
+        </div>
+      </div>
+      <div class="glass-card" style="margin-bottom:1.5rem;">
+        <div class="card-head">
+          <h3><i class="fas fa-chart-bar"></i> Battery Analytics Overview</h3>
+        </div>
+        <canvas id="batteryBarChart" height="200"></canvas>
+      </div>
+      <div class="ev-grid" id="evGrid"></div>
+    </section>
+
+    <!-- ── MAINTENANCE AI SECTION ── -->
+    <section class="section" id="section-maintenance">
+      <div class="section-header">
+        <h2 class="section-title"><i class="fas fa-tools"></i> AI Predictive Maintenance</h2>
+        <div class="section-meta"><span class="ai-tag"><i class="fas fa-brain"></i> AI ENGINE ACTIVE</span></div>
+      </div>
+      <div class="ai-reco-banner" id="aiRecoBanner">
+        <i class="fas fa-brain"></i>
+        <span id="aiRecoText">Scanning fleet data for anomalies…</span>
+      </div>
+      <div class="two-col-grid">
+        <div class="glass-card">
+          <div class="card-head"><h3><i class="fas fa-exclamation-triangle"></i> High Risk Buses</h3></div>
+          <div id="highRiskList"></div>
+        </div>
+        <div class="glass-card">
+          <div class="card-head"><h3><i class="fas fa-calendar-check"></i> Upcoming Maintenance</h3></div>
+          <div id="upcomingMaintList"></div>
+        </div>
+      </div>
+      <div class="glass-card" style="margin-top:1.5rem;">
+        <div class="card-head"><h3><i class="fas fa-history"></i> Service History</h3></div>
+        <div class="table-toolbar">
+          <div class="search-wrap"><i class="fas fa-search"></i><input type="text" id="maintSearch" placeholder="Search bus or depot…"></div>
+        </div>
+        <div class="table-wrap"><table id="maintTable">
+          <thead><tr><th>Bus No</th><th>Depot</th><th>Last Service</th><th>Next Due</th><th>Risk Score</th><th>Priority</th><th>Details</th></tr></thead>
+          <tbody id="maintTableBody"></tbody>
+        </table></div>
+      </div>
+    </section>
+
+    <!-- ── ANALYTICS SECTION ── -->
+    <section class="section" id="section-analytics">
+      <div class="section-header">
+        <h2 class="section-title"><i class="fas fa-chart-line"></i> AI Fleet Analytics</h2>
+      </div>
+      <div class="two-col-grid">
+        <div class="glass-card">
+          <div class="card-head"><h3><i class="fas fa-chart-pie"></i> Fleet Composition</h3></div>
+          <canvas id="typeDonutChart" height="260"></canvas>
+        </div>
+        <div class="glass-card">
+          <div class="card-head"><h3><i class="fas fa-charging-station"></i> EV Fleet Battery Levels</h3></div>
+          <canvas id="evBatteryAnalyticsChart" height="260"></canvas>
+        </div>
+      </div>
+      <div class="glass-card" style="margin-top:1.5rem;">
+        <div class="card-head"><h3><i class="fas fa-chart-area"></i> Monthly Fleet Health Index</h3></div>
+        <canvas id="healthIndexChart" height="220"></canvas>
+      </div>
+    </section>
+
+    <!-- ── CONTRACTS SECTION ── -->
+    <section class="section" id="section-contracts">
+      <div class="section-header">
+        <h2 class="section-title"><i class="fas fa-file-contract"></i> Contract Tracking</h2>
+      </div>
+      <div class="glass-card">
+        <div class="table-toolbar">
+          <div class="search-wrap"><i class="fas fa-search"></i><input type="text" id="contractSearch" placeholder="Search vendor or bus…"></div>
+          <select id="contractFilter"><option value="">All Contracts</option><option value="expiring">Expiring &lt; 30 days</option><option value="expired">Expired</option><option value="active">Active</option></select>
+        </div>
+        <div class="table-wrap"><table id="contractTable">
+          <thead><tr><th>Bus No</th><th>Vendor</th><th>Contract Type</th><th>Start Date</th><th>Expiry Date</th><th>Days Left</th><th>Status</th></tr></thead>
+          <tbody id="contractTableBody"></tbody>
+        </table></div>
+      </div>
+    </section>
+
+    <!-- ── ALERTS SECTION ── -->
+    <section class="section" id="section-alerts">
+      <div class="section-header">
+        <h2 class="section-title"><i class="fas fa-bell"></i> Smart Alerts Panel</h2>
+        <div class="section-meta">
+          <button class="btn-sm" id="clearAlertsBtn"><i class="fas fa-check-double"></i> Clear All</button>
+        </div>
+      </div>
+      <div class="alerts-filter-bar">
+        <button class="alert-filter-btn active" data-sev="all">All</button>
+        <button class="alert-filter-btn" data-sev="critical">Critical</button>
+        <button class="alert-filter-btn" data-sev="high">High</button>
+        <button class="alert-filter-btn" data-sev="medium">Medium</button>
+        <button class="alert-filter-btn" data-sev="low">Low</button>
+      </div>
+      <div id="alertsList"></div>
+    </section>
+
+    <!-- ── AI ASSISTANT SECTION ── -->
+    <section class="section" id="section-assistant">
+      <div class="section-header">
+        <h2 class="section-title"><i class="fas fa-robot"></i> AI Fleet Assistant</h2>
+        <div class="section-meta"><span class="ai-tag">Powered by VMS-AI</span></div>
+      </div>
+      <div class="assistant-layout">
+        <div class="glass-card chat-card">
+          <div class="chat-header">
+            <div class="chat-avatar"><i class="fas fa-robot"></i></div>
+            <div>
+              <div class="chat-name">FLEET-AI</div>
+              <div class="chat-status"><span class="pulse-dot green"></span> Online</div>
+            </div>
+          </div>
+          <div class="chat-body" id="chatBody">
+            <div class="chat-msg ai-msg">
+              <div class="msg-bubble">Namaste! I'm your AI Fleet Assistant. Ask me anything about the Mumbai bus fleet. 🚌</div>
+              <div class="msg-time">System</div>
+            </div>
+          </div>
+          <div class="chat-input-wrap">
+            <input type="text" id="chatInput" placeholder="Ask about fleet status, alerts, maintenance…" />
+            <button id="chatSend"><i class="fas fa-paper-plane"></i></button>
+          </div>
+        </div>
+        <div class="quick-questions">
+          <div class="glass-card">
+            <div class="card-head"><h3>Quick Questions</h3></div>
+            <div class="quick-q-list" id="quickQList"></div>
+          </div>
+          <div class="glass-card ai-stats-panel" id="aiStatsPanel">
+            <div class="card-head"><h3><i class="fas fa-brain"></i> AI Insights Summary</h3></div>
+            <div id="aiInsightsSummary"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── SETTINGS SECTION ── -->
+    <section class="section" id="section-settings">
+      <div class="section-header">
+        <h2 class="section-title"><i class="fas fa-cog"></i> System Settings</h2>
+      </div>
+      <div class="glass-card settings-card">
+        <h3>Appearance</h3>
+        <div class="setting-row">
+          <span>Dark Mode</span>
+          <label class="toggle-switch"><input type="checkbox" id="darkModeCheck" checked /><span class="toggle-slider"></span></label>
+        </div>
+        <div class="setting-row">
+          <span>Live Update Interval</span>
+          <select id="updateInterval"><option value="5000">5 seconds</option><option value="10000" selected>10 seconds</option><option value="30000">30 seconds</option></select>
+        </div>
+        <h3 style="margin-top:1.5rem;">Notifications</h3>
+        <div class="setting-row"><span>Critical Alerts</span><label class="toggle-switch"><input type="checkbox" checked /><span class="toggle-slider"></span></label></div>
+        <div class="setting-row"><span>Battery Alerts</span><label class="toggle-switch"><input type="checkbox" checked /><span class="toggle-slider"></span></label></div>
+        <div class="setting-row"><span>Contract Expiry Alerts</span><label class="toggle-switch"><input type="checkbox" checked /><span class="toggle-slider"></span></label></div>
+        <h3 style="margin-top:1.5rem;">System Info</h3>
+        <div class="setting-info-grid">
+          <div class="info-item"><label>System Version</label><span>v3.2.1 BEST-VMS</span></div>
+          <div class="info-item"><label>Department</label><span>BEST Undertaking, Mumbai</span></div>
+          <div class="info-item"><label>Last Sync</label><span id="settingsLastSync">--</span></div>
+          <div class="info-item"><label>Total Buses Tracked</label><span>28</span></div>
+        </div>
+      </div>
+    </section>
+
+  </div><!-- end sections-wrapper -->
+</main>
+
+<!-- ══════ SERVICE DETAIL MODAL ══════ -->
+<div class="modal-overlay" id="serviceModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 id="modalTitle">Bus Details</h3>
+      <button class="modal-close" id="modalClose"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<!-- ══════ NOTIFICATION DROPDOWN ══════ -->
+<div class="notif-dropdown" id="notifDropdown">
+  <div class="notif-header"><span>Notifications</span><button id="notifClear">Clear</button></div>
+  <div id="notifList"></div>
+</div>
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<script src="script.js"></script>
+</body>
+</html>
